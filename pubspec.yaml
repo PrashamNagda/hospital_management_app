@@ -1,0 +1,39 @@
+name: hospital_management_app
+description: A Flutter app for hospital management.
+
+# The following defines the version and build number for your application.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_bloc: ^8.1.1
+  equatable: ^2.0.3
+
+  # Image picker for photo uploads
+  image_picker: ^1.0.0+5
+
+  # Shared preferences for storing login/logout times
+  shared_preferences: ^2.1.0
+
+  # Geolocator for GPS tracking
+  #geolocator: ^9.0.2
+
+  # HTTP package for network requests
+  http: ^0.13.6
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Lints to improve code quality
+  flutter_lints: ^2.0.0
+
+# To use this package as a plugin, change the following to true
+flutter:
+  uses-material-design: true
