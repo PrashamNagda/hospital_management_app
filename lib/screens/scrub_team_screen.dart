@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../blocs/scrub_team_bloc.dart';
 
 class ScrubTeamScreen extends StatelessWidget {
@@ -31,13 +32,16 @@ class ScrubTeamForm extends StatefulWidget {
 class _ScrubTeamFormState extends State<ScrubTeamForm> {
   String? selectedTaskType;
   String? selectedExpenseType;
+  String? selectedSurgery;
+  String surgeonName = '';
 
   // Variables to store the details for "Travelling" and "Food" fields
   String? selectedTransportMode;
-  String fromLocation = '';
-  String toLocation = '';
-  String travelAmount = '';
-  String foodAmount = '';
+  TextEditingController fromLocationController = TextEditingController();
+  TextEditingController toLocationController = TextEditingController();
+  TextEditingController travelAmountController = TextEditingController();
+  TextEditingController foodAmountController = TextEditingController();
+  TextEditingController surgeonNameController = TextEditingController();
 
   final List<String> taskTypes = ['WASHUP', 'ASSIST'];
   final List<String> expenseTypes = ['Travelling', 'Food'];
@@ -47,6 +51,50 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
     'Public Transport',
     'Other'
   ];
+  final List<String> surgeryTypes = [
+    'ACL',
+    'RC',
+    'Knee Replacement',
+    'Hip Replacement'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
+  }
+
+  // Load saved data from SharedPreferences
+  Future<void> _loadSavedData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedTaskType = prefs.getString('selectedTaskType');
+      selectedExpenseType = prefs.getString('selectedExpenseType');
+      selectedTransportMode = prefs.getString('selectedTransportMode');
+      fromLocationController.text = prefs.getString('fromLocation') ?? '';
+      toLocationController.text = prefs.getString('toLocation') ?? '';
+      travelAmountController.text = prefs.getString('travelAmount') ?? '';
+      foodAmountController.text = prefs.getString('foodAmount') ?? '';
+      selectedSurgery = prefs.getString('selectedSurgery');
+      surgeonNameController.text = prefs.getString('surgeonName') ?? '';
+    });
+  }
+
+  // Save data to SharedPreferences
+  Future<void> _saveData(String key, String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
+
+  @override
+  void dispose() {
+    fromLocationController.dispose();
+    toLocationController.dispose();
+    travelAmountController.dispose();
+    foodAmountController.dispose();
+    surgeonNameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +116,27 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
               setState(() {
                 selectedTaskType = value;
               });
+              _saveData('selectedTaskType', value!);
             },
+          ),
+          const SizedBox(height: 16),
+
+          // Hospital Visited (Upload Photo)
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Hospital Visited',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle photo upload for hospital visited
+                },
+                child: const Text('Upload Photo'),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
 
@@ -86,6 +154,7 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
               setState(() {
                 selectedExpenseType = value;
               });
+              _saveData('selectedExpenseType', value!);
             },
           ),
           const SizedBox(height: 16),
@@ -105,6 +174,7 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                 setState(() {
                   selectedTransportMode = value;
                 });
+                _saveData('selectedTransportMode', value!);
               },
             ),
             const SizedBox(height: 16),
@@ -115,9 +185,11 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                     decoration: const InputDecoration(labelText: 'From'),
                     onChanged: (value) {
                       setState(() {
-                        fromLocation = value;
+                        fromLocationController.text = value;
                       });
+                      _saveData('fromLocation', value);
                     },
+                    controller: fromLocationController,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -126,9 +198,11 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                     decoration: const InputDecoration(labelText: 'To'),
                     onChanged: (value) {
                       setState(() {
-                        toLocation = value;
+                        toLocationController.text = value;
                       });
+                      _saveData('toLocation', value);
                     },
+                    controller: toLocationController,
                   ),
                 ),
               ],
@@ -141,9 +215,11 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                     decoration: const InputDecoration(labelText: 'Amount'),
                     onChanged: (value) {
                       setState(() {
-                        travelAmount = value;
+                        travelAmountController.text = value;
                       });
+                      _saveData('travelAmount', value);
                     },
+                    controller: travelAmountController,
                   ),
                 ),
                 IconButton(
@@ -162,9 +238,11 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                     decoration: const InputDecoration(labelText: 'Amount'),
                     onChanged: (value) {
                       setState(() {
-                        foodAmount = value;
+                        foodAmountController.text = value;
                       });
+                      _saveData('foodAmount', value);
                     },
+                    controller: foodAmountController,
                   ),
                 ),
                 IconButton(
@@ -178,6 +256,39 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
           ],
 
           const SizedBox(height: 16),
+
+          // Surgery Detail Section
+          const Text('Surgery Detail', style: TextStyle(fontSize: 18)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: 'What Surgery'),
+            value: selectedSurgery,
+            items: surgeryTypes.map((String surgery) {
+              return DropdownMenuItem<String>(
+                value: surgery,
+                child: Text(surgery),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedSurgery = value;
+              });
+              _saveData('selectedSurgery', value!);
+            },
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            decoration: const InputDecoration(labelText: 'Surgeon Name'),
+            onChanged: (value) {
+              setState(() {
+                surgeonNameController.text = value;
+              });
+              _saveData('surgeonName', value);
+            },
+            controller: surgeonNameController,
+          ),
+          const SizedBox(height: 16),
+
           ElevatedButton(
             onPressed: () {
               // Handle form submission or other actions
