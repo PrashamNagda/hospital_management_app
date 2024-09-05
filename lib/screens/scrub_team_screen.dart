@@ -104,12 +104,16 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
         children: [
           // Task Type Dropdown
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'Task Type'),
+            decoration: const InputDecoration(
+              labelText: 'Task Type',
+              labelStyle:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
             value: selectedTaskType,
             items: taskTypes.map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value),
+                child: Text(value, style: const TextStyle(color: Colors.black)),
               );
             }).toList(),
             onChanged: (value) {
@@ -127,7 +131,10 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
               Expanded(
                 child: Text(
                   'Hospital Visited',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
               ElevatedButton(
@@ -142,12 +149,18 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
 
           // Expenses Dropdown
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'Expenses'),
+            decoration: const InputDecoration(
+              labelText: 'Expenses',
+              labelStyle: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             value: selectedExpenseType,
             items: expenseTypes.map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value),
+                child: Text(value, style: const TextStyle(color: Colors.black)),
               );
             }).toList(),
             onChanged: (value) {
@@ -162,12 +175,16 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
           // Dynamically display additional fields based on the selected expense type
           if (selectedExpenseType == 'Travelling') ...[
             DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: 'Mode of Transport'),
+              decoration: const InputDecoration(
+                labelText: 'Mode of Transport',
+                labelStyle: TextStyle(color: Colors.black),
+              ),
               value: selectedTransportMode,
               items: transportModes.map((String mode) {
                 return DropdownMenuItem<String>(
                   value: mode,
-                  child: Text(mode),
+                  child:
+                      Text(mode, style: const TextStyle(color: Colors.black)),
                 );
               }).toList(),
               onChanged: (value) {
@@ -182,7 +199,10 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
               children: [
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(labelText: 'From'),
+                    decoration: const InputDecoration(
+                      labelText: 'From',
+                      labelStyle: TextStyle(color: Colors.black),
+                    ),
                     onChanged: (value) {
                       setState(() {
                         fromLocationController.text = value;
@@ -190,12 +210,16 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                       _saveData('fromLocation', value);
                     },
                     controller: fromLocationController,
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(labelText: 'To'),
+                    decoration: const InputDecoration(
+                      labelText: 'To',
+                      labelStyle: TextStyle(color: Colors.black),
+                    ),
                     onChanged: (value) {
                       setState(() {
                         toLocationController.text = value;
@@ -203,6 +227,7 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                       _saveData('toLocation', value);
                     },
                     controller: toLocationController,
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ),
               ],
@@ -212,7 +237,10 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
               children: [
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(labelText: 'Amount'),
+                    decoration: const InputDecoration(
+                      labelText: 'Amount',
+                      labelStyle: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
                     onChanged: (value) {
                       setState(() {
                         travelAmountController.text = value;
@@ -220,6 +248,7 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                       _saveData('travelAmount', value);
                     },
                     controller: travelAmountController,
+                    style: const TextStyle(fontSize: 16, color: Colors.black),
                   ),
                 ),
                 IconButton(
@@ -235,7 +264,10 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
               children: [
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(labelText: 'Amount'),
+                    decoration: const InputDecoration(
+                      labelText: 'Amount',
+                      labelStyle: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
                     onChanged: (value) {
                       setState(() {
                         foodAmountController.text = value;
@@ -243,6 +275,7 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                       _saveData('foodAmount', value);
                     },
                     controller: foodAmountController,
+                    style: const TextStyle(fontSize: 16, color: Colors.black),
                   ),
                 ),
                 IconButton(
@@ -258,15 +291,26 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
           const SizedBox(height: 16),
 
           // Surgery Detail Section
-          const Text('Surgery Detail', style: TextStyle(fontSize: 18)),
+          const Text('Surgery Detail',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              )),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'What Surgery'),
+            decoration: const InputDecoration(
+              labelText: 'What Surgery',
+              labelStyle: TextStyle(
+                color: Colors.black,
+              ),
+            ),
             value: selectedSurgery,
             items: surgeryTypes.map((String surgery) {
               return DropdownMenuItem<String>(
                 value: surgery,
-                child: Text(surgery),
+                child:
+                    Text(surgery, style: const TextStyle(color: Colors.black)),
               );
             }).toList(),
             onChanged: (value) {
@@ -278,7 +322,10 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
           ),
           const SizedBox(height: 16),
           TextField(
-            decoration: const InputDecoration(labelText: 'Surgeon Name'),
+            decoration: const InputDecoration(
+              labelText: 'Surgeon Name',
+              labelStyle: TextStyle(color: Colors.black),
+            ),
             onChanged: (value) {
               setState(() {
                 surgeonNameController.text = value;
@@ -289,12 +336,12 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
           ),
           const SizedBox(height: 16),
 
-          ElevatedButton(
-            onPressed: () {
-              // Handle form submission or other actions
-            },
-            child: const Text('Upload Photo'),
-          ),
+          //ElevatedButton(
+          //  onPressed: () {
+          //    // Handle form submission or other actions
+          //  },
+          //  child: const Text('Upload Photo'),
+          //),
         ],
       ),
     );
