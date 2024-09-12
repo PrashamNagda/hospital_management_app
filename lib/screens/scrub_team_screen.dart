@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 import '../../blocs/scrub_team_bloc.dart';
 
 class ScrubTeamScreen extends StatelessWidget {
@@ -43,6 +46,12 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
   TextEditingController foodAmountController = TextEditingController();
   TextEditingController surgeonNameController = TextEditingController();
 
+  File? _hospitalImage;
+  File? _travelReceiptImage;
+  File? _foodReceiptImage;
+
+  final ImagePicker _picker = ImagePicker();
+
   final List<String> taskTypes = ['WASHUP', 'ASSIST'];
   final List<String> expenseTypes = ['Travelling', 'Food'];
   final List<String> transportModes = [
@@ -84,6 +93,54 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
   Future<void> _saveData(String key, String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(key, value);
+  }
+
+  // Method to show bottom sheet for image selection
+  void _showImageSourceSelection(String type) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150,
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Take a Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(type, ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Pick from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(type, ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Method to pick an image
+  Future<void> _pickImage(String type, ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
+      setState(() {
+        if (type == 'hospital') {
+          _hospitalImage = File(pickedFile.path);
+        } else if (type == 'travel') {
+          _travelReceiptImage = File(pickedFile.path);
+        } else if (type == 'food') {
+          _foodReceiptImage = File(pickedFile.path);
+        }
+      });
+    }
   }
 
   @override
@@ -138,11 +195,13 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
-                  // Handle photo upload for hospital visited
-                },
+                onPressed: () => _showImageSourceSelection('hospital'),
                 child: const Text('Upload Photo'),
               ),
+              if (_hospitalImage != null) ...[
+                SizedBox(height: 10),
+                Image.file(_hospitalImage!, height: 100),
+              ],
             ],
           ),
           const SizedBox(height: 16),
@@ -253,10 +312,12 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.camera_alt),
-                  onPressed: () {
-                    // Handle photo upload for travel receipt
-                  },
+                  onPressed: () => _showImageSourceSelection('travel'),
                 ),
+                if (_travelReceiptImage != null) ...[
+                  SizedBox(height: 10),
+                  Image.file(_travelReceiptImage!, height: 100),
+                ],
               ],
             ),
           ] else if (selectedExpenseType == 'Food') ...[
@@ -280,10 +341,12 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.camera_alt),
-                  onPressed: () {
-                    // Handle photo upload for food receipt
-                  },
+                  onPressed: () => _showImageSourceSelection('food'),
                 ),
+                if (_foodReceiptImage != null) ...[
+                  SizedBox(height: 10),
+                  Image.file(_foodReceiptImage!, height: 100),
+                ],
               ],
             ),
           ],
@@ -335,13 +398,6 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
             controller: surgeonNameController,
           ),
           const SizedBox(height: 16),
-
-          //ElevatedButton(
-          //  onPressed: () {
-          //    // Handle form submission or other actions
-          //  },
-          //  child: const Text('Upload Photo'),
-          //),
         ],
       ),
     );

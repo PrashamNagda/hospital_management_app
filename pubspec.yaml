@@ -18,7 +18,7 @@ dependencies:
   equatable: ^2.0.3
 
   # Image picker for photo uploads
-  image_picker: ^1.0.0+5
+  image_picker: ^0.8.4+8
 
   # Shared preferences for storing login/logout times
   shared_preferences: ^2.1.0
