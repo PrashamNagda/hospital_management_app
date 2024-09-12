@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'scrub_team_screen.dart';
+import 'collection_billing_screen.dart'; // Import the CollectionBillingScreen
 
 class ChooseCategoryScreen extends StatelessWidget {
   @override
@@ -51,20 +52,30 @@ class ChooseCategoryScreen extends StatelessWidget {
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                     children: [
-                      _buildCategoryCard(context, 'Scrub Team',
-                          Icons.local_hospital, ScrubTeamScreen()),
                       _buildCategoryCard(
-                          context,
-                          'Collection & Billing Team',
-                          Icons.account_balance_wallet,
-                          ScrubTeamScreen()), // Replace with actual screens
+                        context,
+                        'Scrub Team',
+                        Icons.local_hospital,
+                        ScrubTeamScreen(),
+                      ),
                       _buildCategoryCard(
-                          context,
-                          'Runner Team',
-                          Icons.directions_run,
-                          ScrubTeamScreen()), // Replace with actual screens
-                      _buildCategoryCard(context, 'Sales Team', Icons.group,
-                          ScrubTeamScreen()), // Replace with actual screens
+                        context,
+                        'Collection & Billing Team',
+                        Icons.account_balance_wallet,
+                        CollectionBillingScreen(), // Navigate to CollectionBillingScreen
+                      ),
+                      _buildCategoryCard(
+                        context,
+                        'Runner Team',
+                        Icons.directions_run,
+                        ScrubTeamScreen(), // Replace with the actual screen for the Runner Team
+                      ),
+                      _buildCategoryCard(
+                        context,
+                        'Sales Team',
+                        Icons.group,
+                        ScrubTeamScreen(), // Replace with the actual screen for the Sales Team
+                      ),
                     ],
                   ),
                 ),
