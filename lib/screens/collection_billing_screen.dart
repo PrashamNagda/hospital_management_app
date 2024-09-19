@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 import '../../blocs/collection_billing_bloc.dart';
 import '../../blocs/collection_billing_event.dart';
 import '../../blocs/collection_billing_state.dart';
@@ -43,6 +46,10 @@ class _CollectionBillingFormState extends State<CollectionBillingForm> {
   TextEditingController travelAmountController = TextEditingController();
   TextEditingController foodAmountController = TextEditingController();
 
+  File? _chequePhoto;
+  File? _travelReceiptPhoto;
+  File? _foodReceiptPhoto;
+
   final List<String> collectionMethods = ['CASH', 'CHEQUE'];
   final List<String> transportModes = [
     'Car',
@@ -50,6 +57,8 @@ class _CollectionBillingFormState extends State<CollectionBillingForm> {
     'Public Transport',
     'Other'
   ];
+
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -78,6 +87,54 @@ class _CollectionBillingFormState extends State<CollectionBillingForm> {
   Future<void> _saveData(String key, String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(key, value);
+  }
+
+  // Method to show bottom sheet for image selection
+  void _showImageSourceSelection(String type) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150,
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Take a Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(type, ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Pick from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(type, ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Method to pick an image
+  Future<void> _pickImage(String type, ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
+      setState(() {
+        if (type == 'cheque') {
+          _chequePhoto = File(pickedFile.path);
+        } else if (type == 'travel') {
+          _travelReceiptPhoto = File(pickedFile.path);
+        } else if (type == 'food') {
+          _foodReceiptPhoto = File(pickedFile.path);
+        }
+      });
+    }
   }
 
   @override
@@ -140,7 +197,7 @@ class _CollectionBillingFormState extends State<CollectionBillingForm> {
           const SizedBox(height: 16),
 
           // Cheque Photo (if applicable)
-          if (selectedCollectionMethod == 'CHEQUE')
+          if (selectedCollectionMethod == 'CHEQUE') ...[
             Row(
               children: [
                 Expanded(
@@ -152,12 +209,17 @@ class _CollectionBillingFormState extends State<CollectionBillingForm> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle photo upload for cheque
+                    _showImageSourceSelection('cheque');
                   },
                   child: const Text('Upload Photo'),
                 ),
+                if (_chequePhoto != null) ...[
+                  SizedBox(height: 10),
+                  Image.file(_chequePhoto!, height: 100),
+                ],
               ],
             ),
+          ],
           const SizedBox(height: 16),
 
           // Amount for Cash Collected
@@ -300,9 +362,13 @@ class _CollectionBillingFormState extends State<CollectionBillingForm> {
               IconButton(
                 icon: const Icon(Icons.camera_alt),
                 onPressed: () {
-                  // Handle photo upload for travel receipt
+                  _showImageSourceSelection('travel');
                 },
               ),
+              if (_travelReceiptPhoto != null) ...[
+                SizedBox(height: 10),
+                Image.file(_travelReceiptPhoto!, height: 100),
+              ],
             ],
           ),
           const SizedBox(height: 16),
@@ -329,9 +395,13 @@ class _CollectionBillingFormState extends State<CollectionBillingForm> {
               IconButton(
                 icon: const Icon(Icons.camera_alt),
                 onPressed: () {
-                  // Handle photo upload for food receipt
+                  _showImageSourceSelection('food');
                 },
               ),
+              if (_foodReceiptPhoto != null) ...[
+                SizedBox(height: 10),
+                Image.file(_foodReceiptPhoto!, height: 100),
+              ],
             ],
           ),
           const SizedBox(height: 16),
