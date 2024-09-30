@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-import '../../blocs/scrub_team_bloc.dart';
+import '../blocs/scrub_team_bloc/scrub_team_bloc.dart';
 
 class ScrubTeamScreen extends StatelessWidget {
   @override

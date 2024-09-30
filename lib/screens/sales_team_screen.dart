@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../blocs/runner_team_bloc/runner_team_bloc.dart';
-import '../blocs/runner_team_bloc/runner_team_event.dart';
-import '../blocs/runner_team_bloc/runner_team_state.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class RunnerTeamScreen extends StatelessWidget {
+import '../blocs/sales_team_bloc/sales_team_bloc.dart';
+import '../blocs/sales_team_bloc/sales_team_event.dart';
+
+class SalesTeamScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Runner Team Dashboard'),
+        title: const Text('Sales Team'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -21,28 +21,27 @@ class RunnerTeamScreen extends StatelessWidget {
         ),
       ),
       body: BlocProvider(
-        create: (context) => RunnerTeamBloc(),
-        child: RunnerTeamForm(),
+        create: (context) => SalesTeamBloc(),
+        child: SalesTeamForm(),
       ),
     );
   }
 }
 
-class RunnerTeamForm extends StatefulWidget {
+class SalesTeamForm extends StatefulWidget {
   @override
-  _RunnerTeamFormState createState() => _RunnerTeamFormState();
+  _SalesTeamFormState createState() => _SalesTeamFormState();
 }
 
-class _RunnerTeamFormState extends State<RunnerTeamForm> {
+class _SalesTeamFormState extends State<SalesTeamForm> {
   String? selectedTransportMode;
   TextEditingController hospitalNameController = TextEditingController();
+  TextEditingController surgeonNameController = TextEditingController();
   TextEditingController travelAmountController = TextEditingController();
   TextEditingController foodAmountController = TextEditingController();
-  TextEditingController fromLocationController = TextEditingController();
-  TextEditingController toLocationController = TextEditingController();
-  String? photoOfItemsPath;
-  String? photoOfChallanPath;
-  final ImagePicker _picker = ImagePicker();
+
+  File? _travelReceiptPhoto;
+  File? _foodReceiptPhoto;
 
   final List<String> transportModes = [
     'Car',
@@ -50,6 +49,8 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
     'Public Transport',
     'Other'
   ];
+
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -62,13 +63,10 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       hospitalNameController.text = prefs.getString('hospitalName') ?? '';
+      surgeonNameController.text = prefs.getString('surgeonName') ?? '';
       travelAmountController.text = prefs.getString('travelAmount') ?? '';
       foodAmountController.text = prefs.getString('foodAmount') ?? '';
-      fromLocationController.text = prefs.getString('fromLocation') ?? '';
-      toLocationController.text = prefs.getString('toLocation') ?? '';
       selectedTransportMode = prefs.getString('selectedTransportMode');
-      photoOfItemsPath = prefs.getString('photoOfItemsPath');
-      photoOfChallanPath = prefs.getString('photoOfChallanPath');
     });
   }
 
@@ -78,29 +76,58 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
     await prefs.setString(key, value);
   }
 
-  // Function to handle image selection
-  Future<void> _pickImage(String type) async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
+  // Method to show bottom sheet for image selection
+  void _showImageSourceSelection(String type) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150,
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Take a Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(type, ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Pick from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(type, ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Method to pick an image
+  Future<void> _pickImage(String type, ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
       setState(() {
-        if (type == 'items') {
-          photoOfItemsPath = image.path;
-        } else if (type == 'challan') {
-          photoOfChallanPath = image.path;
+        if (type == 'travel') {
+          _travelReceiptPhoto = File(pickedFile.path);
+        } else if (type == 'food') {
+          _foodReceiptPhoto = File(pickedFile.path);
         }
       });
-      _saveData(type == 'items' ? 'photoOfItemsPath' : 'photoOfChallanPath',
-          image.path);
     }
   }
 
   @override
   void dispose() {
     hospitalNameController.dispose();
+    surgeonNameController.dispose();
     travelAmountController.dispose();
     foodAmountController.dispose();
-    fromLocationController.dispose();
-    toLocationController.dispose();
     super.dispose();
   }
 
@@ -113,7 +140,7 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
           // Hospital Visited
           TextField(
             decoration: const InputDecoration(
-              labelText: 'Hospital Visited',
+              labelText: 'Hospital/Clinic Visited',
               labelStyle:
                   TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),
@@ -127,47 +154,22 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
           ),
           const SizedBox(height: 16),
 
-          // Photo of Items Delivered/Picked
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Photo of Items Delivered/Picked',
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => _pickImage('items'),
-                child: const Text('Upload Photo'),
-              ),
-            ],
+          // Surgeon Name
+          TextField(
+            decoration: const InputDecoration(
+              labelText: 'Surgeon Name',
+              labelStyle:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+            onChanged: (value) {
+              setState(() {
+                surgeonNameController.text = value;
+              });
+              _saveData('surgeonName', value);
+            },
+            controller: surgeonNameController,
           ),
-          if (photoOfItemsPath != null) ...[
-            Image.file(File(photoOfItemsPath!)),
-            const SizedBox(height: 16),
-          ],
-
-          // Photo of Challan
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Photo of Challan',
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => _pickImage('challan'),
-                child: const Text('Upload Photo'),
-              ),
-            ],
-          ),
-          if (photoOfChallanPath != null) ...[
-            Image.file(File(photoOfChallanPath!)),
-            const SizedBox(height: 16),
-          ],
+          const SizedBox(height: 16),
 
           // Expenses Section
           const Text('Expenses',
@@ -199,50 +201,14 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
             },
           ),
           const SizedBox(height: 16),
+
+          // Travel Amount
           Row(
             children: [
               Expanded(
                 child: TextField(
                   decoration: const InputDecoration(
-                    labelText: 'From',
-                    labelStyle: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      fromLocationController.text = value;
-                    });
-                    _saveData('fromLocation', value);
-                  },
-                  controller: fromLocationController,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'To',
-                    labelStyle: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      toLocationController.text = value;
-                    });
-                    _saveData('toLocation', value);
-                  },
-                  controller: toLocationController,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
+                    labelText: 'Travel Amount',
                     labelStyle: TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold),
                   ),
@@ -258,14 +224,18 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
               IconButton(
                 icon: const Icon(Icons.camera_alt),
                 onPressed: () {
-                  // Handle photo upload for travel receipt
+                  _showImageSourceSelection('travel');
                 },
               ),
             ],
           ),
+          if (_travelReceiptPhoto != null) ...[
+            SizedBox(height: 10),
+            Image.file(_travelReceiptPhoto!, height: 100),
+          ],
           const SizedBox(height: 16),
 
-          // Lunch/Dinner
+          // Lunch/Dinner Amount
           Row(
             children: [
               Expanded(
@@ -287,11 +257,15 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
               IconButton(
                 icon: const Icon(Icons.camera_alt),
                 onPressed: () {
-                  // Handle photo upload for food receipt
+                  _showImageSourceSelection('food');
                 },
               ),
             ],
           ),
+          if (_foodReceiptPhoto != null) ...[
+            SizedBox(height: 10),
+            Image.file(_foodReceiptPhoto!, height: 100),
+          ],
           const SizedBox(height: 16),
 
           // Submit Button
@@ -309,21 +283,17 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
 
   // Submit form data and handle business logic
   void _submitForm(BuildContext context) {
-    final bloc = BlocProvider.of<RunnerTeamBloc>(context);
+    final bloc = BlocProvider.of<SalesTeamBloc>(context);
 
     bloc.add(HospitalNameChanged(hospitalNameController.text));
+    bloc.add(SurgeonNameChanged(surgeonNameController.text));
     bloc.add(TransportModeChanged(selectedTransportMode!));
-    bloc.add(TravelFromChanged(fromLocationController.text));
-    bloc.add(TravelToChanged(toLocationController.text));
     bloc.add(TravelAmountChanged(travelAmountController.text));
     bloc.add(FoodAmountChanged(foodAmountController.text));
-    bloc.add(PhotoOfItemsChanged(photoOfItemsPath ?? ''));
-    bloc.add(PhotoOfChallanChanged(photoOfChallanPath ?? ''));
 
     // Optionally, you can navigate to another screen or show a confirmation message here
-    //ScaffoldMessenger.of(context).show
-    //ScaffoldMessenger.of(context).showSnackBar(
-    //  const SnackBar(content: Text('Form Submitted')),
-    //);
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text('Form Submitted')),
+    // );
   }
 }

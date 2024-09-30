@@ -4,9 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-import '../../blocs/collection_billing_bloc.dart';
-import '../../blocs/collection_billing_event.dart';
-import '../../blocs/collection_billing_state.dart';
+import '../blocs/collection_and_billing_bloc/collection_billing_bloc.dart';
+import '../blocs/collection_and_billing_bloc/collection_billing_event.dart';
+//import '../blocs/collection_and_billing_bloc/collection_billing_state.dart';
 
 class CollectionBillingScreen extends StatelessWidget {
   @override

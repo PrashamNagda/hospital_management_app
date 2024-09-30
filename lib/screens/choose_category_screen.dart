@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'scrub_team_screen.dart';
 import 'collection_billing_screen.dart';
 import 'runner_team_screen.dart';
-// import 'sales_team_screen.dart'; // Import the SalesTeamScreen
+import 'sales_team_screen.dart'; // Import the SalesTeamScreen
 
 class ChooseCategoryScreen extends StatelessWidget {
   @override
@@ -76,7 +76,7 @@ class ChooseCategoryScreen extends StatelessWidget {
                         context,
                         'Sales Team',
                         Icons.group,
-                        ScrubTeamScreen(), // Updated to actual screen for Sales Team
+                        SalesTeamScreen(), // Updated to actual screen for Sales Team
                       ),
                     ],
                   ),

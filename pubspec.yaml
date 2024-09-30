@@ -24,7 +24,7 @@ dependencies:
   shared_preferences: ^2.1.0
 
   # Geolocator for GPS tracking
-  #geolocator: ^9.0.2
+  geolocator: ^9.0.2
 
   # HTTP package for network requests
   http: ^0.13.6
