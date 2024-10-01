@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/choose_category_screen.dart';
+import 'package:hospital_management_app/screens/choose_category_screen.dart';
+import 'login/login_page.dart';
+import 'signup/signup_page.dart';
 
 void main() {
   runApp(HospitalManagementApp());
@@ -14,7 +16,12 @@ class HospitalManagementApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: ChooseCategoryScreen(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/signup': (context) => SignUpPage(),
+        '/chooseCategory': (context) => ChooseCategoryScreen(),
+      },
     );
   }
 }
