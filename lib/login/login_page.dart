@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LoginPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
@@ -34,8 +35,15 @@ class LoginPage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                // Navigate to ChooseCategoryScreen on button press
+              onPressed: () async {
+                // Get the user's geolocation
+                Position position = await _determinePosition();
+
+                // Log the position for debugging (you can use it as needed)
+                print(
+                    'User location: ${position.latitude}, ${position.longitude}');
+
+                // Navigate to ChooseCategoryScreen after logging in and getting location
                 Navigator.pushReplacementNamed(context, '/chooseCategory');
               },
               child: Text('Login'),
@@ -51,5 +59,37 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Method to determine position
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // If location services are not enabled, prompt the user to turn it on
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check for location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // If permission is denied, return an error
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // If permissions are permanently denied, return an error
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // If everything is fine, get the current position of the user
+    return await Geolocator.getCurrentPosition();
   }
 }
