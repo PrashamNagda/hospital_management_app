@@ -11,31 +11,29 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # shared_preferences: ^2.3.2 
-
-  # State management
+  shared_preferences: ^2.1.0
   flutter_bloc: ^8.1.1
   equatable: ^2.0.3
-
-  # Image picker for photo uploads
   image_picker: ^0.8.4+8
-
-  # Shared preferences for storing login/logout times
-  shared_preferences: ^2.1.0
-
-  # Geolocator for GPS tracking
   geolocator: ^9.0.2
-
-  # HTTP package for network requests
   http: ^0.13.6
-  
+  flutter_launcher_icons: ^0.14.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # Lints to improve code quality
   flutter_lints: ^2.0.0
 
-# To use this package as a plugin, change the following to true
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "asset/icon.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "asset/icon.png"
+
 flutter:
   uses-material-design: true
+  assets:
+    - asset/icon.png
+
+  
