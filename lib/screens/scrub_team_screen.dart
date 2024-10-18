@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
 import '../blocs/scrub_team_bloc/scrub_team_bloc.dart';
 
 class ScrubTeamScreen extends StatelessWidget {
@@ -45,6 +44,7 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
   TextEditingController travelAmountController = TextEditingController();
   TextEditingController foodAmountController = TextEditingController();
   TextEditingController surgeonNameController = TextEditingController();
+  TextEditingController customSurgeryController = TextEditingController();
 
   File? _hospitalImage;
   File? _travelReceiptImage;
@@ -64,7 +64,8 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
     'ACL',
     'RC',
     'Knee Replacement',
-    'Hip Replacement'
+    'Hip Replacement',
+    'Other'
   ];
 
   @override
@@ -150,6 +151,7 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
     travelAmountController.dispose();
     foodAmountController.dispose();
     surgeonNameController.dispose();
+    customSurgeryController.dispose();
     super.dispose();
   }
 
@@ -306,74 +308,61 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
                       });
                       _saveData('travelAmount', value);
                     },
+                    keyboardType: TextInputType.number,
                     controller: travelAmountController,
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.camera_alt),
+                ElevatedButton(
                   onPressed: () => _showImageSourceSelection('travel'),
+                  child: const Text('Upload Receipt'),
                 ),
-                if (_travelReceiptImage != null) ...[
-                  SizedBox(height: 10),
-                  Image.file(_travelReceiptImage!, height: 100),
-                ],
               ],
             ),
+            if (_travelReceiptImage != null) ...[
+              const SizedBox(height: 10),
+              Image.file(_travelReceiptImage!, height: 100),
+            ],
           ] else if (selectedExpenseType == 'Food') ...[
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Amount',
-                      labelStyle: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        foodAmountController.text = value;
-                      });
-                      _saveData('foodAmount', value);
-                    },
-                    controller: foodAmountController,
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.camera_alt),
-                  onPressed: () => _showImageSourceSelection('food'),
-                ),
-                if (_foodReceiptImage != null) ...[
-                  SizedBox(height: 10),
-                  Image.file(_foodReceiptImage!, height: 100),
-                ],
-              ],
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Amount',
+                labelStyle: TextStyle(color: Colors.black),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  foodAmountController.text = value;
+                });
+                _saveData('foodAmount', value);
+              },
+              keyboardType: TextInputType.number,
+              controller: foodAmountController,
+              style: const TextStyle(color: Colors.black),
             ),
+            ElevatedButton(
+              onPressed: () => _showImageSourceSelection('food'),
+              child: const Text('Upload Receipt'),
+            ),
+            if (_foodReceiptImage != null) ...[
+              const SizedBox(height: 10),
+              Image.file(_foodReceiptImage!, height: 100),
+            ],
           ],
 
           const SizedBox(height: 16),
 
-          // Surgery Detail Section
-          const Text('Surgery Detail',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              )),
-          const SizedBox(height: 8),
+          // Surgery Dropdown
           DropdownButtonFormField<String>(
             decoration: const InputDecoration(
-              labelText: 'What Surgery',
-              labelStyle: TextStyle(
-                color: Colors.black,
-              ),
+              labelText: 'Surgery',
+              labelStyle:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),
             value: selectedSurgery,
-            items: surgeryTypes.map((String surgery) {
+            items: surgeryTypes.map((String value) {
               return DropdownMenuItem<String>(
-                value: surgery,
-                child:
-                    Text(surgery, style: const TextStyle(color: Colors.black)),
+                value: value,
+                child: Text(value, style: const TextStyle(color: Colors.black)),
               );
             }).toList(),
             onChanged: (value) {
@@ -383,21 +372,49 @@ class _ScrubTeamFormState extends State<ScrubTeamForm> {
               _saveData('selectedSurgery', value!);
             },
           ),
+          if (selectedSurgery == 'Other') ...[
+            TextField(
+              controller: customSurgeryController,
+              decoration: const InputDecoration(
+                labelText: 'Custom Surgery',
+                labelStyle: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
+
+          // Surgeon Name TextField
           TextField(
+            controller: surgeonNameController,
             decoration: const InputDecoration(
               labelText: 'Surgeon Name',
-              labelStyle: TextStyle(color: Colors.black),
+              labelStyle: TextStyle(fontSize: 16, color: Colors.black),
             ),
             onChanged: (value) {
               setState(() {
-                surgeonNameController.text = value;
+                surgeonName = value;
               });
               _saveData('surgeonName', value);
             },
-            controller: surgeonNameController,
           ),
+
           const SizedBox(height: 16),
+
+          // Submit Button
+          ElevatedButton(
+            onPressed: () {
+              if (selectedTaskType != null && selectedSurgery != null) {
+                Navigator.pushNamed(context, '/team_screen');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please fill all the mandatory fields.'),
+                  ),
+                );
+              }
+            },
+            child: const Text('Submit'),
+          ),
         ],
       ),
     );

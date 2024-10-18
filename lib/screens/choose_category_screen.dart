@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hospital_management_app/login/login_page.dart';
 import 'scrub_team_screen.dart';
 import 'collection_billing_screen.dart';
 import 'runner_team_screen.dart';
-import 'sales_team_screen.dart'; // Import the SalesTeamScreen
+import 'sales_team_screen.dart';
 
 class ChooseCategoryScreen extends StatelessWidget {
   @override
@@ -10,16 +11,22 @@ class ChooseCategoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Choose Category'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        // Replace the back arrow with the logout button
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              // Navigate back to the login screen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
-          // Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -76,7 +83,7 @@ class ChooseCategoryScreen extends StatelessWidget {
                         context,
                         'Sales Team',
                         Icons.group,
-                        SalesTeamScreen(), // Updated to actual screen for Sales Team
+                        SalesTeamScreen(),
                       ),
                     ],
                   ),

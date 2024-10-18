@@ -3,10 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
 import '../blocs/collection_and_billing_bloc/collection_billing_bloc.dart';
 import '../blocs/collection_and_billing_bloc/collection_billing_event.dart';
-//import '../blocs/collection_and_billing_bloc/collection_billing_state.dart';
 
 class CollectionBillingScreen extends StatelessWidget {
   @override
@@ -409,14 +407,37 @@ class _CollectionBillingFormState extends State<CollectionBillingForm> {
           // Submit Button
           ElevatedButton(
             onPressed: () {
-              // Handle form submission
-              _submitForm(context);
+              _validateAndSubmitForm(context);
             },
             child: const Text('Submit'),
           ),
         ],
       ),
     );
+  }
+
+  // Validate and submit the form
+  void _validateAndSubmitForm(BuildContext context) {
+    if (_isFormValid()) {
+      _submitForm(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all mandatory fields')),
+      );
+    }
+  }
+
+  // Check if the form is valid
+  bool _isFormValid() {
+    return hospitalNameController.text.isNotEmpty &&
+        selectedCollectionMethod != null &&
+        amountCollectedController.text.isNotEmpty &&
+        billingDetailsController.text.isNotEmpty &&
+        selectedTransportMode != null &&
+        fromLocationController.text.isNotEmpty &&
+        toLocationController.text.isNotEmpty &&
+        travelAmountController.text.isNotEmpty &&
+        foodAmountController.text.isNotEmpty;
   }
 
   // Submit form data and handle business logic

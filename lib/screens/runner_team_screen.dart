@@ -104,6 +104,29 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
     super.dispose();
   }
 
+  // Check if the form is valid
+  bool _isFormValid() {
+    return hospitalNameController.text.isNotEmpty &&
+        selectedTransportMode != null &&
+        fromLocationController.text.isNotEmpty &&
+        toLocationController.text.isNotEmpty &&
+        travelAmountController.text.isNotEmpty &&
+        foodAmountController.text.isNotEmpty &&
+        photoOfItemsPath != null &&
+        photoOfChallanPath != null;
+  }
+
+  // Validate and submit the form
+  void _validateAndSubmitForm(BuildContext context) {
+    if (_isFormValid()) {
+      _submitForm(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all mandatory fields')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -297,8 +320,7 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
           // Submit Button
           ElevatedButton(
             onPressed: () {
-              // Handle form submission
-              _submitForm(context);
+              _validateAndSubmitForm(context);
             },
             child: const Text('Submit'),
           ),
@@ -321,9 +343,8 @@ class _RunnerTeamFormState extends State<RunnerTeamForm> {
     bloc.add(PhotoOfChallanChanged(photoOfChallanPath ?? ''));
 
     // Optionally, you can navigate to another screen or show a confirmation message here
-    //ScaffoldMessenger.of(context).show
-    //ScaffoldMessenger.of(context).showSnackBar(
-    //  const SnackBar(content: Text('Form Submitted')),
-    //);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Form Submitted')),
+    );
   }
 }

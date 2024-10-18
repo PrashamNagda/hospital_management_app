@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
 import '../blocs/sales_team_bloc/sales_team_bloc.dart';
 import '../blocs/sales_team_bloc/sales_team_event.dart';
 
