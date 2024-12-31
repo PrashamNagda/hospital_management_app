@@ -3,6 +3,7 @@
 ## Overview
 
 The **Hospital Management App** is a robust mobile application designed to enhance the efficiency of hospital operations. This app centralizes key functionalities, enabling seamless coordination among various hospital teams. It ensures transparency, accountability, and data accuracy through advanced features like GPS live location tracking, expense management, and team-specific dashboards.
+
 ![image](https://github.com/user-attachments/assets/e11bbfd9-e67e-4727-bd19-19050cb88722)
 
 ---
